@@ -26,8 +26,29 @@ Notebook ini membangun pipeline lengkap dari:
 CELL_1 = code("""# ============================================================
 # CELL 1 — Setup & Instalasi Dependencies
 # ============================================================
-# Jalankan baris ini sekali jika package belum terpasang.
-# !pip install -q requests pandas numpy scikit-learn matplotlib seaborn tqdm
+# Auto-install: cek import; kalau ada yang missing, install otomatis sekali.
+import importlib
+import importlib.util
+import subprocess
+import sys
+
+REQUIRED = {
+    "requests": "requests",
+    "pandas": "pandas",
+    "numpy": "numpy",
+    "sklearn": "scikit-learn",
+    "matplotlib": "matplotlib",
+    "seaborn": "seaborn",
+    "tqdm": "tqdm",
+}
+missing = [pkg for mod, pkg in REQUIRED.items()
+           if importlib.util.find_spec(mod) is None]
+if missing:
+    print(f"📦 Installing missing packages: {missing}")
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", *missing])
+    print("✅ Install selesai.")
+else:
+    print("✅ Semua dependency sudah terpasang.")
 
 import os
 import re
@@ -484,15 +505,26 @@ def fuzzy_match(a: str, b: str) -> float:
     return len(ta & tb) / len(ta | tb)
 
 
+def is_likely_duplicate(osm_name: str, seed_name: str) -> bool:
+    """Lebih ketat dari fuzzy: substring atau jaccard >0.6."""
+    a = re.sub(r"[^a-z0-9 ]+", " ", str(osm_name).lower()).strip()
+    b = re.sub(r"[^a-z0-9 ]+", " ", str(seed_name).lower()).strip()
+    if not a or not b:
+        return False
+    if a == b or a in b or b in a:
+        return True
+    return fuzzy_match(a, b) > 0.6
+
+
 def merge_with_dedup(manual: pd.DataFrame, osm: pd.DataFrame) -> pd.DataFrame:
-    """Merge manual (priority) + osm, drop duplikat fuzzy >0.8."""
+    """Merge manual (priority) + osm, drop duplikat (substring atau jaccard >0.6)."""
     if osm is None or len(osm) == 0:
         return manual.copy()
     manual_names = manual["name"].tolist()
     keep_rows = []
     for _, r in osm.iterrows():
         nm = r["name"]
-        if any(fuzzy_match(nm, m) > 0.8 for m in manual_names):
+        if any(is_likely_duplicate(nm, m) for m in manual_names):
             continue
         keep_rows.append(r)
     osm_unique = pd.DataFrame(keep_rows)
@@ -501,19 +533,29 @@ def merge_with_dedup(manual: pd.DataFrame, osm: pd.DataFrame) -> pd.DataFrame:
 
 df_enriched = merge_with_dedup(manual_df, df_osm if "df_osm" in dir() else pd.DataFrame())
 
+# ---------- Pastikan SEMUA kolom yang dibutuhkan ada (defensive) ----------
+EXPECTED_COLS = {
+    "id": None, "name": None, "category": None,
+    "desc": None, "ticket": None, "duration": None,
+    "rating": None, "tags": None, "lat": None, "lng": None,
+    "source": "osm" if not df_enriched.empty else "manual",
+    "gmaps_url": None,
+}
+for col, default in EXPECTED_COLS.items():
+    if col not in df_enriched.columns:
+        df_enriched[col] = default
+
 # ---------- Isi field default untuk record OSM ----------
 df_enriched["id"] = df_enriched.apply(
     lambda r: r["id"] if pd.notna(r.get("id")) and str(r.get("id")).strip() else slugify(r["name"]),
     axis=1,
 )
-df_enriched["desc"] = df_enriched.get("desc")
 df_enriched["desc"] = df_enriched["desc"].fillna(
-    df_enriched["category"].apply(lambda c: f"Destinasi wisata {c} di Bandung"))
-df_enriched["ticket"] = df_enriched.get("ticket")
-df_enriched["duration"] = df_enriched.get("duration")
-df_enriched["rating"] = df_enriched.get("rating")
-df_enriched["tags"] = df_enriched.get("tags")
-df_enriched["tags"] = df_enriched["tags"].apply(lambda x: x if isinstance(x, list) else [])
+    df_enriched["category"].apply(lambda c: f"Destinasi wisata {c} di Bandung")
+)
+df_enriched["tags"] = df_enriched["tags"].apply(
+    lambda x: x if isinstance(x, list) else []
+)
 df_enriched["gmaps_url"] = df_enriched["name"].apply(generate_gmaps_url)
 
 # Drop duplikat id (jaga seed dulu)
@@ -539,6 +581,12 @@ DEFAULT_RATING = 4.2
 
 def clean_destinations(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
+
+    # 0. Pastikan semua kolom wajib ada (idempotent)
+    for col in ("id", "name", "category", "desc", "ticket", "duration",
+                "rating", "tags", "lat", "lng", "gmaps_url"):
+        if col not in df.columns:
+            df[col] = pd.NA
 
     # 1. Rename lon → lng (jika masih ada)
     if "lon" in df.columns and "lng" not in df.columns:
@@ -676,6 +724,15 @@ df_feat["tags_str"] = df_feat["tags"].apply(
 tfidf = TfidfVectorizer(max_features=20, min_df=1)
 tfidf_matrix = tfidf.fit_transform(df_feat["tags_str"]).toarray()
 
+# (c.1) MinMax normalize TF-IDF agar magnitude-nya sebanding dengan one-hot/numeric
+# (raw TF-IDF L2-normalized → kolom kecil; ini meningkatkan kontribusi dim tags
+#  pada cosine similarity tanpa mendominasi kolom kategori one-hot)
+tfidf_scaler = MinMaxScaler()
+if tfidf_matrix.shape[1] > 0 and tfidf_matrix.max() > 0:
+    tfidf_matrix = tfidf_scaler.fit_transform(tfidf_matrix)
+else:
+    tfidf_scaler = None
+
 # (d) Gabungkan
 feature_matrix = np.hstack([category_onehot, numeric_normalized, tfidf_matrix])
 print(f"✅ Feature matrix shape: {feature_matrix.shape}")
@@ -691,6 +748,7 @@ encoders = {
     "label_encoder_category": le_category,
     "scaler": scaler,
     "tfidf": tfidf,
+    "tfidf_scaler": tfidf_scaler,
     "feature_cols": numeric_cols,
     "category_order": CATEGORY_ORDER,
     "n_category_dims": category_onehot.shape[1],
@@ -1053,16 +1111,26 @@ class BandungTravelEnv:
     def _get_state(self):
         n_sel = min(8, len(self.selected))
         budget_total = self.params["budget"]
+        # Bucket sesuai spec README:
+        # 0 = habis, 1 = <25%, 2 = <50%, 3 = <75%, 4 = >=75% sisa
         if budget_total <= 0:
             budget_level = 0
+        elif budget_total >= 999_999_998:
+            # Effectively no budget limit
+            budget_level = 4
         else:
             ratio = max(0.0, 1.0 - self.spent / budget_total)
-            budget_level = min(4, int(ratio * 4 + 1e-9))
-            if ratio >= 0.75:
+            if ratio <= 0.0:
+                budget_level = 0
+            elif ratio < 0.25:
+                budget_level = 1
+            elif ratio < 0.50:
+                budget_level = 2
+            elif ratio < 0.75:
+                budget_level = 3
+            else:
                 budget_level = 4
-        time_total = max(1, self.params["endMin"] - self.params["startMin"])
         time_left = max(0, self.params["endMin"] - self.cur_time)
-        time_ratio = time_left / time_total
         if time_left <= 0:
             time_level = 0
         elif time_left < 120:
@@ -1109,13 +1177,18 @@ class BandungTravelEnv:
 
     def _calculate_reward(self, dest_row, travel_km: float) -> float:
         rating_score = float(dest_row["rating"]) / 5.0
-        cats_chosen = {self.df.iloc[i]["category"] for i in self.selected}
+        # NOTE: dest_row sudah masuk ke self.selected & self.spent saat method ini dipanggil
+        # (lihat step()), jadi cek variety harus exclude destinasi terakhir,
+        # dan budget_eff tidak boleh mengurangi ticket lagi (sudah termasuk di self.spent).
+        prior_selected = self.selected[:-1] if self.selected else []
+        cats_chosen = {self.df.iloc[i]["category"] for i in prior_selected}
         variety = 0.2 if dest_row["category"] not in cats_chosen else 0.0
+
         budget_total = self.params["budget"]
         if budget_total <= 0 or budget_total >= 999_999_998:
             budget_eff = 0.5
         else:
-            remain = max(0, budget_total - self.spent - int(dest_row["ticket"]))
+            remain = max(0, budget_total - self.spent)  # spent already includes current ticket
             budget_eff = remain / budget_total
 
         w = self.REWARD_WEIGHTS
@@ -1364,6 +1437,10 @@ class RouteOptimizer:
     def __init__(self, use_osrm: bool = True, osrm_timeout: float = 5.0):
         self.use_osrm = use_osrm
         self.osrm_timeout = osrm_timeout
+        # In-memory cache supaya panggilan ulang antar segment (mis. return trip
+        # atau evaluasi 100x) tidak menghantam OSRM public berkali-kali.
+        # Key: tuple koordinat dibulatkan ke 4 desimal (~11 m presisi).
+        self._osrm_cache = {}
 
     def haversine_km(self, lat1, lng1, lat2, lng2) -> float:
         return haversine_km(lat1, lng1, lat2, lng2)
@@ -1373,15 +1450,21 @@ class RouteOptimizer:
         if not self.use_osrm:
             d = self.haversine_km(lat1, lng1, lat2, lng2)
             return d, (d / self.SPEED_KMH) * 60
+        key = (round(lat1, 4), round(lng1, 4), round(lat2, 4), round(lng2, 4))
+        if key in self._osrm_cache:
+            return self._osrm_cache[key]
         try:
             url = f"{self.OSRM_BASE}/{lng1},{lat1};{lng2},{lat2}?overview=false"
             resp = requests.get(url, timeout=self.osrm_timeout)
             resp.raise_for_status()
             route = resp.json()["routes"][0]
-            return route["distance"] / 1000.0, route["duration"] / 60.0
-        except Exception as e:
+            dist_km = route["distance"] / 1000.0
+            dur_min = route["duration"] / 60.0
+        except Exception:
             d = self.haversine_km(lat1, lng1, lat2, lng2)
-            return d, (d / self.SPEED_KMH) * 60
+            dist_km, dur_min = d, (d / self.SPEED_KMH) * 60
+        self._osrm_cache[key] = (dist_km, dur_min)
+        return dist_km, dur_min
 
     def nearest_neighbor_route(self, home: dict, destinations: list) -> list:
         if not destinations:
@@ -1451,7 +1534,8 @@ class RouteOptimizer:
         return_km, return_min = self.osrm_travel_time(cur_lat, cur_lng, home["lat"], home["lng"])
         arrive_home = cur_time + int(round(return_min))
         total_km += float(return_km)
-        total_time = total_visit_time + sum(s["travelMin"] for s in steps) + int(round(return_min))
+        # totalTime = waktu total dari berangkat sampai tiba kembali (sesuai kontrak frontend)
+        total_time = int(arrive_home - start_min)
 
         spare = end_min - arrive_home
         return {
@@ -1491,35 +1575,74 @@ NB01_CELLS_PART_B = [CELL_8, CELL_9, CELL_10, CELL_11, CELL_12, CELL_13, CELL_14
 
 # ---------- CELL 16: Integration test ----------
 CELL_16 = code('''# ============================================================
-# CELL 16 — Integration Test (Full Pipeline)
+# CELL 16 — Integration Test (Full Pipeline) + Edge Cases
 # ============================================================
 def rl_select_destinations(env: BandungTravelEnv, agent: QLearningAgent,
                             params: dict) -> list:
-    """Inference RL: gunakan greedy policy (epsilon=0) untuk memilih destinasi."""
+    """Inference RL: greedy policy (epsilon=0). Tidak melakukan double-append —
+    bergantung pada env.selected sebagai sumber kebenaran."""
     saved_eps = agent.epsilon
     agent.epsilon = 0.0
     try:
         state, candidates = env.reset(params)
         candidate_ids = [env.df.iloc[i]["id"] for i in candidates]
-        selected_rows = []
         done = False
-        while not done and len(selected_rows) < params.get("count", 4):
+        target = max(1, int(params.get("count", 4)))
+        while not done and len(env.selected) < target:
             valid = env.get_valid_actions()
             if not valid:
                 break
             action = agent.choose_action(state, valid, candidate_ids)
             if action < 0 or action >= len(env.candidates):
                 break
-            idx = env.candidates[action]
-            selected_rows.append(env.df.iloc[idx].to_dict())
             state, _, done, _ = env.step(action)
-        return selected_rows
+        # Pakai env.selected sebagai single source of truth
+        return [env.df.iloc[i].to_dict() for i in env.selected]
     finally:
         agent.epsilon = saved_eps
 
 
+def _smart_fallback_fill(selected: list, params: dict, target: int) -> list:
+    """Lengkapi `selected` dengan kandidat CBF yang tetap menghormati
+    sisa budget, sisa waktu, dan max_km dari home."""
+    if len(selected) >= target:
+        return selected
+    home_lat = params["home"]["lat"]
+    home_lng = params["home"]["lng"]
+    spent = sum(int(d.get("ticket", 0)) for d in selected)
+    used_dur = sum(int(d.get("duration", 0)) for d in selected)
+    # Penting: budget=0 valid (artinya hanya gratis), bukan "no limit"
+    has_budget = params.get("budget") is not None
+    remaining_budget = (params["budget"] - spent) if has_budget else None
+    remaining_time = max(0, params["endMin"] - params["startMin"] - used_dur)
+
+    rec = cbf_model.recommend(
+        categories=params.get("categories", []),
+        budget=remaining_budget,
+        max_km=params.get("maxKm"),
+        home_lat=home_lat, home_lng=home_lng,
+        top_n=30,
+    )
+    seen = {d["id"] for d in selected}
+    for _, r in rec.iterrows():
+        if len(selected) >= target:
+            break
+        if r["id"] in seen:
+            continue
+        if has_budget and int(r.get("ticket", 0)) > remaining_budget:
+            continue
+        if int(r.get("duration", 60)) > remaining_time:
+            continue
+        selected.append(r.to_dict())
+        seen.add(r["id"])
+        spent += int(r.get("ticket", 0))
+        if has_budget:
+            remaining_budget -= int(r.get("ticket", 0))
+        remaining_time -= int(r.get("duration", 60))
+    return selected
+
+
 def full_pipeline_test(params: dict) -> dict:
-    # 1+2: RL-guided selection (CBF candidates dipakai di env.reset)
     selected = rl_select_destinations(env, rl_agent, {
         "categories": params.get("categories", []),
         "budget": params.get("budget"),
@@ -1530,38 +1653,29 @@ def full_pipeline_test(params: dict) -> dict:
         "home_lat": params["home"]["lat"],
         "home_lng": params["home"]["lng"],
     })
-
-    # Fallback bila RL gagal mengisi: lengkapi dari CBF
-    if len(selected) < params.get("count", 4):
-        rec = cbf_model.recommend(
-            categories=params.get("categories", []),
-            budget=params.get("budget"),
-            max_km=params.get("maxKm"),
-            home_lat=params["home"]["lat"],
-            home_lng=params["home"]["lng"],
-            top_n=20,
-        )
-        seen = {d["id"] for d in selected}
-        for _, r in rec.iterrows():
-            if len(selected) >= params.get("count", 4):
-                break
-            if r["id"] not in seen:
-                selected.append(r.to_dict())
-                seen.add(r["id"])
-
-    # 3: Route ordering
+    selected = _smart_fallback_fill(selected, params, params.get("count", 4))
     ordered = optimizer.nearest_neighbor_route(params["home"], selected)
-    # 4: Itinerary
-    itin = optimizer.build_itinerary(
+    return optimizer.build_itinerary(
         home=params["home"],
         home_name=params["homeName"],
         ordered_destinations=ordered,
         start_min=params["startMin"],
         end_min=params["endMin"],
     )
-    return itin
 
 
+def _print_itinerary(label: str, params: dict, res: dict):
+    print(f"\\n{'='*60}\\n{label}\\n{'='*60}")
+    print(f"Destinasi terpilih: {len(res['steps'])}")
+    for s in res["steps"]:
+        a = f"{s['arriveAt']//60:02d}:{s['arriveAt']%60:02d}"
+        print(f"  {s['idx']}. {s['dest']['name']:<28} ({s['dest']['category']}) — tiba {a}")
+    print(f"💰 Total biaya: Rp {res['totalCost']:,}")
+    print(f"📏 Total jarak: {res['totalKm']:.1f} km | totalTime {res['totalTime']} mnt")
+    print(f"🏠 Tiba kembali: {res['arriveHome']//60:02d}:{res['arriveHome']%60:02d} | overTime: {res['overBudget']}")
+
+
+# ---------- 3 skenario utama ----------
 test_cases = [
     {"home": {"lat": -6.9215, "lng": 107.6071}, "homeName": "Alun-Alun Bandung",
      "count": 4, "maxKm": None, "startMin": 9 * 60, "endMin": 21 * 60,
@@ -1573,25 +1687,60 @@ test_cases = [
      "count": 5, "maxKm": None, "startMin": 10 * 60, "endMin": 20 * 60,
      "budget": None, "categories": ["Kuliner", "Budaya", "Belanja"]},
 ]
-
+main_results = []
 for i, p in enumerate(test_cases, 1):
-    print(f"\\n{'='*60}\\nTEST CASE {i}: {p['homeName']}\\n{'='*60}")
     res = full_pipeline_test(p)
-    print(f"Destinasi terpilih: {len(res['steps'])}")
-    for s in res["steps"]:
-        a = f"{s['arriveAt']//60:02d}:{s['arriveAt']%60:02d}"
-        print(f"  {s['idx']}. {s['dest']['name']:<28} ({s['dest']['category']}) — tiba {a}")
-    print(f"💰 Total biaya: Rp {res['totalCost']:,}")
-    print(f"📏 Total jarak: {res['totalKm']:.1f} km")
-    print(f"🏠 Tiba kembali: {res['arriveHome']//60:02d}:{res['arriveHome']%60:02d}")
-    print(f"⏰ Over time: {res['overBudget']}")
+    _print_itinerary(f"TEST CASE {i}: {p['homeName']}", p, res)
+    main_results.append(res)
+
+
+# ---------- Edge cases ----------
+print("\\n" + "#" * 60)
+print("# EDGE CASES")
+print("#" * 60)
+
+edge_cases = [
+    # Edge: budget = 0 → hanya destinasi gratis (ticket=0)
+    {"label": "Edge 1 — budget = 0 (hanya gratis)",
+     "params": {"home": {"lat": -6.9215, "lng": 107.6071}, "homeName": "Alun-Alun",
+                "count": 3, "maxKm": None, "startMin": 9 * 60, "endMin": 17 * 60,
+                "budget": 0, "categories": ["Budaya", "Belanja"]}},
+    # Edge: count > kandidat tersedia (count=8 + max_km kecil)
+    {"label": "Edge 2 — count > kandidat (max_km 5km, count=8)",
+     "params": {"home": {"lat": -6.9215, "lng": 107.6071}, "homeName": "Alun-Alun",
+                "count": 8, "maxKm": 5, "startMin": 8 * 60, "endMin": 22 * 60,
+                "budget": None, "categories": ["Kuliner", "Budaya"]}},
+    # Edge: semua kategori dipilih
+    {"label": "Edge 3 — semua kategori",
+     "params": {"home": {"lat": -6.9215, "lng": 107.6071}, "homeName": "Alun-Alun",
+                "count": 5, "maxKm": None, "startMin": 8 * 60, "endMin": 21 * 60,
+                "budget": 500_000,
+                "categories": ["Alam", "Kuliner", "Budaya", "Wisata", "Belanja"]}},
+    # Edge: tidak ada kategori dipilih (frontend kadang kirim list kosong)
+    {"label": "Edge 4 — tidak ada kategori (categories=[])",
+     "params": {"home": {"lat": -6.9215, "lng": 107.6071}, "homeName": "Alun-Alun",
+                "count": 3, "maxKm": None, "startMin": 9 * 60, "endMin": 19 * 60,
+                "budget": 300_000, "categories": []}},
+]
+for ec in edge_cases:
+    try:
+        res = full_pipeline_test(ec["params"])
+        _print_itinerary(ec["label"], ec["params"], res)
+        # Validasi soft: minimal 1 destinasi terambil (kecuali jika benar-benar mustahil)
+        if len(res["steps"]) == 0:
+            print("  ℹ️  0 destinasi — kondisi memang mustahil, fallback kosong.")
+    except Exception as e:
+        print(f"  ❌ {ec['label']} crashed: {e}")
 ''')
 
 
 # ---------- CELL 17: Evaluation ----------
 CELL_17 = code('''# ============================================================
-# CELL 17 — Evaluasi Model
+# CELL 17 — Evaluasi Model (re-seeded supaya reproducible)
 # ============================================================
+random.seed(RANDOM_SEED)
+np.random.seed(RANDOM_SEED)
+
 print("=== CBF Evaluation ===")
 # (1) Intra-list diversity
 diversities = []
@@ -1695,15 +1844,58 @@ print(f"  Route Optimization Improvement: {imp:.1f}%")
 
 # ---------- CELL 18: Export & summary ----------
 CELL_18 = code('''# ============================================================
-# CELL 18 — Export & Summary
+# CELL 18 — Export & Summary + Sample API Response
 # ============================================================
 print("\\n" + "=" * 60)
 print("📦 EXPORT SUMMARY — Bandung AI Travel Agent")
 print("=" * 60)
 
+# ---------- Sample API request + response (sesuai kontrak frontend) ----------
+sample_params = {
+    "home": {"lat": -6.9215, "lng": 107.6071},
+    "homeName": "Alun-Alun Bandung",
+    "count": 4,
+    "maxKm": None,
+    "startMin": 9 * 60,
+    "endMin": 21 * 60,
+    "budget": 500_000,
+    "categories": ["Alam", "Kuliner"],
+}
+sample_itinerary = full_pipeline_test(sample_params)
+sample_response = {
+    **sample_itinerary,
+    # story biasanya di-generate di Notebook 02 — di sini placeholder kosong
+    # supaya backend developer punya gambaran shape lengkap.
+    "story": {
+        "intro": "(akan di-generate oleh Notebook 02 / Groq API)",
+        "highlights": ["(per destinasi)"] * len(sample_itinerary["steps"]),
+        "tips": ["(2-4 tips praktis)"],
+        "closing": "(1 kalimat penutup)",
+        "vibe": "Alam & Kuliner",
+    },
+    "data_last_updated": str(date.today()),
+}
+
+with open("data/processed/sample_api_request.json", "w", encoding="utf-8") as f:
+    json.dump(sample_params, f, ensure_ascii=False, indent=2)
+with open("data/processed/sample_api_response.json", "w", encoding="utf-8") as f:
+    json.dump(sample_response, f, ensure_ascii=False, indent=2)
+print("✅ data/processed/sample_api_request.json")
+print("✅ data/processed/sample_api_response.json (story = placeholder)")
+
+# ---------- Validasi kontrak frontend (basic) ----------
+required_root = ["steps", "totalCost", "totalKm", "totalTime", "returnKm",
+                  "returnMin", "arriveHome", "overBudget", "spareMin",
+                  "story", "data_last_updated"]
+missing = [k for k in required_root if k not in sample_response]
+print(f"  Kontrak frontend (root keys): {'✅ lengkap' if not missing else '❌ missing: ' + str(missing)}")
+
+# ---------- Cek file model ----------
 files_to_check = [
     "data/processed/destinations.csv",
     "data/processed/feature_matrix.npy",
+    "data/processed/sample_api_request.json",
+    "data/processed/sample_api_response.json",
     "data/last_updated.txt",
     "models/cbf_model.pkl",
     "models/rl_agent.pkl",
