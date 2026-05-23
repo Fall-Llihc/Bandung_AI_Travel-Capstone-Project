@@ -32,20 +32,10 @@ import pandas as pd
 
 log = logging.getLogger(__name__)
 
-# Repository layout: backend/recommender.py — models live one level up at /models/
-import os
-BACKEND_DIR = Path(__file__).resolve().parent   # /app/backend/
-_repo_candidates = [
-    BACKEND_DIR.parent,      # /app/  ← ini yang benar setelah fix
-    Path("/app"),
-    Path("/workspace"),
-]
-REPO_ROOT = next(
-    (p for p in _repo_candidates if (p / "models" / "cbf_model.pkl").exists()),
-    BACKEND_DIR.parent,
-)
-MODELS_DIR = Path(os.environ.get("MODEL_DIR", str(REPO_ROOT / "models")))
-DATA_PATH = BACKEND_DIR / "data" / "destinations.csv"
+# Repository layout: backend/recommender.py — models now inside backend/models/
+BACKEND_DIR       = Path(__file__).resolve().parent
+MODELS_DIR        = BACKEND_DIR / "models"
+DATA_PATH         = BACKEND_DIR / "data" / "destinations.csv"
 LAST_UPDATED_PATH = BACKEND_DIR / "data" / "last_updated.txt"
 
 CITY_TRAVEL_SPEED_KMH = 28.0  # Bandung urban average for back-of-envelope ETA
