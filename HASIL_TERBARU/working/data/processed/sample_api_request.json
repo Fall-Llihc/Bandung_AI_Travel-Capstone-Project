@@ -1,0 +1,17 @@
+{
+  "home": {
+    "lat": -6.9215,
+    "lng": 107.6071
+  },
+  "homeName": "Alun-Alun Bandung",
+  "count": 4,
+  "maxKm": 25,
+  "startMin": 540,
+  "endMin": 1260,
+  "budget": 400000,
+  "categories": [
+    "Alam",
+    "Kuliner",
+    "Wisata"
+  ]
+}

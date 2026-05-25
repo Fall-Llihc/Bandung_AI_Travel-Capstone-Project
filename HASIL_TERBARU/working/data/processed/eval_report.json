@@ -1,0 +1,11 @@
+{
+  "n_scenarios": 100,
+  "category_coverage_pct": 97.0,
+  "distance_compliance_pct": 100.0,
+  "budget_compliance_pct": 83.0,
+  "avg_rating": 4.316283333333334,
+  "avg_total_km": 47.006600000000006,
+  "avg_total_cost": 185640.0,
+  "avg_variety_index": 0.9666666666666667,
+  "avg_steps_per_itinerary": 3.31
+}

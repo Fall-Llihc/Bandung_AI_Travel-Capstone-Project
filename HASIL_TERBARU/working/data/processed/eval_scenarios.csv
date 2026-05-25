@@ -1,0 +1,101 @@
+scenario,n_steps,count_req,n_cats_req,cats_req,cats_got,cat_compliant,dist_violations,max_km_req,budget_req,total_cost,total_km,budget_compliant,avg_rating,variety_index,home
+0,4,4,2,"['Alam', 'Kuliner']","['Kuliner', 'Alam', 'Alam', 'Alam']",True,0,40.0,100000.0,160000,78.11,False,4.425,1.0,Gedung Sate
+1,3,3,3,"['Kuliner', 'Wisata', 'Alam']","['Alam', 'Kuliner', 'Wisata']",True,0,60.0,600000.0,209000,46.09,True,4.266666666666667,1.0,Pasar Lembang
+2,3,3,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata']",True,0,40.0,100000.0,99000,39.34,True,4.033333333333333,1.0,Gedung Sate
+3,5,5,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,40.0,1000000.0,672000,16.1,True,4.18,1.0,Alun-Alun Bandung
+4,3,5,2,"['Kuliner', 'Wisata']","['Wisata', 'Wisata', 'Wisata']",False,0,25.0,100000.0,149000,31.29,False,4.333333333333333,0.5,Dago
+5,2,2,1,['Kuliner'],"['Kuliner', 'Kuliner']",True,0,15.0,100000.0,86000,40.69,True,4.2,1.0,Stasiun Bandung
+6,3,3,3,"['Kuliner', 'Wisata', 'Alam']","['Wisata', 'Kuliner', 'Alam']",True,0,60.0,200000.0,224000,51.69,False,4.266666666666667,1.0,Stasiun Bandung
+7,3,3,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,40.0,200000.0,74000,63.44,True,4.5,1.0,Pasar Lembang
+8,3,4,2,"['Kuliner', 'Wisata']","['Wisata', 'Wisata', 'Wisata']",False,0,15.0,100000.0,149000,30.62,False,4.333333333333333,0.5,Stasiun Bandung
+9,3,3,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,40.0,100000.0,62000,59.29,True,4.366666666666666,1.0,Pasar Lembang
+10,4,4,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,40.0,100000.0,86000,45.09,True,4.2,1.0,Dago
+11,4,4,2,"['Alam', 'Wisata']","['Wisata', 'Alam', 'Wisata', 'Alam']",True,0,25.0,200000.0,155000,70.47,True,4.325,1.0,Stasiun Bandung
+12,5,5,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,15.0,100000.0,86000,50.01,True,4.199999999999999,1.0,Stasiun Bandung
+13,3,5,2,"['Wisata', 'Alam']","['Wisata', 'Alam', 'Alam']",True,0,60.0,600000.0,105000,65.39,True,4.366666666666666,1.0,Alun-Alun Bandung
+14,2,2,1,['Wisata'],"['Wisata', 'Wisata']",True,0,15.0,100000.0,89000,26.03,True,4.45,1.0,Gedung Sate
+15,3,3,2,"['Wisata', 'Alam']","['Wisata', 'Alam', 'Alam']",True,0,,100000.0,105000,63.19,False,4.366666666666666,1.0,Gedung Sate
+16,4,4,3,"['Wisata', 'Alam', 'Kuliner']","['Wisata', 'Kuliner', 'Wisata', 'Alam']",True,0,15.0,600000.0,248000,33.39,True,4.375,1.0,Alun-Alun Bandung
+17,3,3,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,,,62000,52.01,True,4.366666666666666,1.0,Gedung Sate
+18,4,4,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,40.0,100000.0,86000,40.54,True,4.199999999999999,1.0,Pasar Lembang
+19,3,5,2,"['Wisata', 'Alam']","['Wisata', 'Alam', 'Alam']",True,0,60.0,400000.0,105000,63.54,True,4.366666666666666,1.0,Dago
+20,3,3,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner']",True,0,15.0,400000.0,383000,34.23,True,4.2,1.0,Pasar Lembang
+21,3,3,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,,200000.0,74000,66.27,True,4.5,1.0,Gedung Sate
+22,4,5,1,['Alam'],"['Alam', 'Alam', 'Alam', 'Alam']",True,0,40.0,600000.0,83000,72.9,True,4.45,1.0,Gedung Sate
+23,3,3,2,"['Alam', 'Kuliner']","['Kuliner', 'Alam', 'Alam']",True,0,25.0,600000.0,179000,66.79,True,4.3999999999999995,1.0,Stasiun Bandung
+24,4,4,1,['Alam'],"['Alam', 'Alam', 'Alam', 'Alam']",True,0,,100000.0,78000,75.13,True,4.425,1.0,Pasar Lembang
+25,4,5,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,40.0,400000.0,400000,47.45,True,4.175,1.0,Gedung Sate
+26,3,5,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,25.0,,58000,67.39,True,4.3999999999999995,1.0,Stasiun Bandung
+27,4,4,3,"['Kuliner', 'Alam', 'Wisata']","['Wisata', 'Kuliner', 'Alam', 'Alam']",True,0,,100000.0,169000,81.16,False,4.425,1.0,Gedung Sate
+28,4,4,3,"['Wisata', 'Alam', 'Kuliner']","['Wisata', 'Kuliner', 'Alam', 'Alam']",True,0,60.0,,184000,66.84,True,4.325,1.0,Dago
+29,3,5,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata']",True,0,15.0,,124000,40.52,True,4.433333333333334,1.0,Gedung Sate
+30,4,4,3,"['Alam', 'Wisata', 'Kuliner']","['Kuliner', 'Wisata', 'Kuliner', 'Alam']",True,0,60.0,200000.0,371000,51.41,False,4.3999999999999995,1.0,Dago
+31,3,3,2,"['Kuliner', 'Wisata']","['Wisata', 'Kuliner', 'Wisata']",True,0,60.0,600000.0,233000,14.99,True,4.333333333333333,1.0,Stasiun Bandung
+32,5,5,2,"['Kuliner', 'Wisata']","['Wisata', 'Kuliner', 'Wisata', 'Kuliner', 'Wisata']",True,0,15.0,200000.0,389000,55.42,False,4.3,1.0,Gedung Sate
+33,3,3,2,"['Wisata', 'Alam']","['Alam', 'Wisata', 'Alam']",True,0,40.0,200000.0,105000,62.41,True,4.366666666666666,1.0,Pasar Lembang
+34,4,4,3,"['Alam', 'Wisata', 'Kuliner']","['Alam', 'Kuliner', 'Wisata', 'Alam']",True,0,60.0,400000.0,239000,66.86,True,4.324999999999999,1.0,Pasar Lembang
+35,2,2,3,"['Kuliner', 'Wisata', 'Alam']","['Wisata', 'Kuliner']",True,0,25.0,400000.0,194000,6.7,True,4.15,0.6666666666666666,Gedung Sate
+36,2,5,1,['Wisata'],"['Wisata', 'Wisata']",True,0,,100000.0,99000,37.96,True,3.9499999999999997,1.0,Gedung Sate
+37,3,4,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata']",True,0,,200000.0,158000,39.67,True,4.233333333333333,1.0,Gedung Sate
+38,3,4,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,40.0,1000000.0,58000,68.97,True,4.3999999999999995,1.0,Alun-Alun Bandung
+39,2,5,1,['Wisata'],"['Wisata', 'Wisata']",True,0,15.0,200000.0,127000,22.03,True,4.6,1.0,Gedung Sate
+40,5,5,3,"['Alam', 'Wisata', 'Kuliner']","['Wisata', 'Kuliner', 'Wisata', 'Alam', 'Wisata']",True,0,15.0,1000000.0,298000,48.64,True,4.34,1.0,Alun-Alun Bandung
+41,2,2,2,"['Kuliner', 'Wisata']","['Wisata', 'Kuliner']",True,0,15.0,600000.0,194000,6.7,True,4.15,1.0,Gedung Sate
+42,4,4,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata', 'Wisata']",True,0,15.0,200000.0,196000,45.06,True,4.3,1.0,Stasiun Bandung
+43,3,3,2,"['Wisata', 'Alam']","['Alam', 'Wisata', 'Alam']",True,0,15.0,100000.0,105000,62.41,False,4.366666666666666,1.0,Pasar Lembang
+44,2,2,3,"['Wisata', 'Alam', 'Kuliner']","['Wisata', 'Kuliner']",True,0,40.0,600000.0,194000,10.18,True,4.15,0.6666666666666666,Dago
+45,5,5,3,"['Kuliner', 'Wisata', 'Alam']","['Wisata', 'Kuliner', 'Wisata', 'Alam', 'Alam']",True,0,40.0,200000.0,294000,71.5,False,4.3,1.0,Gedung Sate
+46,4,4,2,"['Alam', 'Kuliner']","['Kuliner', 'Kuliner', 'Alam', 'Alam']",True,0,40.0,1000000.0,326000,66.28,True,4.5,1.0,Gedung Sate
+47,4,4,1,['Alam'],"['Alam', 'Alam', 'Alam', 'Alam']",True,0,60.0,600000.0,83000,76.5,True,4.45,1.0,Stasiun Bandung
+48,4,5,2,"['Kuliner', 'Alam']","['Kuliner', 'Kuliner', 'Alam', 'Alam']",True,0,,100000.0,193000,74.92,False,4.425,1.0,Alun-Alun Bandung
+49,3,3,3,"['Alam', 'Wisata', 'Kuliner']","['Alam', 'Kuliner', 'Wisata']",True,0,15.0,400000.0,209000,46.09,True,4.266666666666667,1.0,Pasar Lembang
+50,5,5,2,"['Wisata', 'Alam']","['Wisata', 'Wisata', 'Alam', 'Wisata', 'Wisata']",True,0,15.0,1000000.0,245000,55.2,True,4.4,1.0,Stasiun Bandung
+51,4,4,2,"['Kuliner', 'Wisata']","['Wisata', 'Wisata', 'Kuliner', 'Wisata']",True,0,15.0,,266000,44.73,True,4.375,1.0,Pasar Lembang
+52,4,4,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,60.0,,446000,40.2,True,4.2,1.0,Pasar Lembang
+53,3,5,2,"['Kuliner', 'Alam']","['Kuliner', 'Alam', 'Kuliner']",True,0,,100000.0,189000,54.3,False,4.433333333333334,1.0,Pasar Lembang
+54,2,2,2,"['Alam', 'Wisata']","['Wisata', 'Alam']",True,0,25.0,100000.0,75000,25.66,True,4.3,1.0,Dago
+55,5,5,1,['Alam'],"['Alam', 'Alam', 'Alam', 'Alam', 'Alam']",True,0,60.0,200000.0,102000,88.06,True,4.4399999999999995,1.0,Pasar Lembang
+56,2,2,3,"['Wisata', 'Kuliner', 'Alam']","['Wisata', 'Wisata']",True,0,15.0,100000.0,99000,9.62,True,4.4,0.3333333333333333,Gedung Sate
+57,2,2,2,"['Kuliner', 'Wisata']","['Wisata', 'Kuliner']",True,0,15.0,1000000.0,194000,10.18,True,4.15,1.0,Dago
+58,4,4,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,60.0,1000000.0,541000,15.55,True,4.175,1.0,Alun-Alun Bandung
+59,4,5,3,"['Wisata', 'Kuliner', 'Alam']","['Wisata', 'Kuliner', 'Alam', 'Alam']",True,0,40.0,1000000.0,239000,66.88,True,4.325,1.0,Gedung Sate
+60,3,3,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,40.0,600000.0,58000,67.39,True,4.3999999999999995,1.0,Stasiun Bandung
+61,4,4,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,,,463000,15.66,True,4.2,1.0,Stasiun Bandung
+62,4,4,3,"['Kuliner', 'Alam', 'Wisata']","['Wisata', 'Kuliner', 'Alam', 'Alam']",True,0,25.0,,184000,68.69,True,4.325,1.0,Alun-Alun Bandung
+63,2,2,1,['Alam'],"['Alam', 'Alam']",True,0,25.0,200000.0,51000,44.31,True,4.45,1.0,Gedung Sate
+64,2,2,3,"['Alam', 'Wisata', 'Kuliner']","['Wisata', 'Kuliner']",True,0,25.0,200000.0,194000,10.18,True,4.15,0.6666666666666666,Dago
+65,2,2,2,"['Alam', 'Wisata']","['Wisata', 'Alam']",True,0,25.0,100000.0,75000,25.35,True,4.3,1.0,Gedung Sate
+66,2,2,1,['Wisata'],"['Wisata', 'Wisata']",True,0,15.0,,89000,31.85,True,4.45,1.0,Alun-Alun Bandung
+67,5,5,2,"['Alam', 'Wisata']","['Wisata', 'Alam', 'Alam', 'Alam', 'Alam']",True,0,40.0,100000.0,142000,80.73,False,4.4,1.0,Gedung Sate
+68,3,3,2,"['Wisata', 'Kuliner']","['Wisata', 'Kuliner', 'Wisata']",True,0,25.0,600000.0,233000,14.99,True,4.333333333333333,1.0,Stasiun Bandung
+69,3,3,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,,400000.0,71000,49.29,True,4.433333333333334,1.0,Pasar Lembang
+70,3,3,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata']",True,0,40.0,400000.0,204000,32.97,True,4.266666666666667,1.0,Dago
+71,3,3,3,"['Wisata', 'Alam', 'Kuliner']","['Alam', 'Kuliner', 'Wisata']",True,0,25.0,600000.0,209000,46.09,True,4.266666666666667,1.0,Pasar Lembang
+72,3,3,3,"['Kuliner', 'Alam', 'Wisata']","['Wisata', 'Kuliner', 'Alam']",True,0,,400000.0,209000,30.64,True,4.266666666666667,1.0,Stasiun Bandung
+73,4,5,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata', 'Wisata']",True,0,40.0,600000.0,232000,58.81,True,4.199999999999999,1.0,Gedung Sate
+74,3,3,2,"['Kuliner', 'Wisata']","['Wisata', 'Kuliner', 'Wisata']",True,0,25.0,600000.0,233000,14.99,True,4.333333333333333,1.0,Stasiun Bandung
+75,4,4,2,"['Alam', 'Kuliner']","['Kuliner', 'Kuliner', 'Alam', 'Alam']",True,0,60.0,1000000.0,290000,67.9,True,4.425,1.0,Alun-Alun Bandung
+76,3,3,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata']",True,0,25.0,600000.0,172000,62.92,True,4.233333333333333,1.0,Stasiun Bandung
+77,4,4,2,"['Kuliner', 'Alam']","['Alam', 'Kuliner', 'Kuliner', 'Alam']",True,0,60.0,400000.0,290000,65.97,True,4.425,1.0,Pasar Lembang
+78,4,4,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata', 'Wisata']",True,0,15.0,400000.0,230000,40.21,True,4.375,1.0,Dago
+79,5,5,1,['Alam'],"['Alam', 'Alam', 'Alam', 'Alam', 'Alam']",True,0,60.0,400000.0,107000,66.9,True,4.44,1.0,Pasar Lembang
+80,2,2,3,"['Kuliner', 'Alam', 'Wisata']","['Wisata', 'Alam']",True,0,,100000.0,90000,47.28,True,4.3,0.6666666666666666,Gedung Sate
+81,3,3,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata']",True,0,15.0,1000000.0,159000,33.05,True,4.2,1.0,Alun-Alun Bandung
+82,2,4,1,['Wisata'],"['Wisata', 'Wisata']",True,0,25.0,200000.0,127000,33.16,True,4.6,1.0,Pasar Lembang
+83,2,2,2,"['Alam', 'Kuliner']","['Kuliner', 'Alam']",True,0,,400000.0,149000,30.66,True,4.35,1.0,Alun-Alun Bandung
+84,2,2,1,['Wisata'],"['Wisata', 'Wisata']",True,0,,100000.0,99000,37.96,True,3.9499999999999997,1.0,Gedung Sate
+85,2,2,1,['Alam'],"['Alam', 'Alam']",True,0,,100000.0,50000,50.51,True,4.5,1.0,Pasar Lembang
+86,2,5,1,['Wisata'],"['Wisata', 'Wisata']",True,0,60.0,100000.0,99000,43.5,True,3.9499999999999997,1.0,Stasiun Bandung
+87,4,5,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,25.0,1000000.0,514000,35.64,True,4.2,1.0,Pasar Lembang
+88,3,3,3,"['Wisata', 'Kuliner', 'Alam']","['Wisata', 'Kuliner', 'Alam']",True,0,40.0,200000.0,224000,51.41,False,4.266666666666667,1.0,Dago
+89,4,4,2,"['Wisata', 'Alam']","['Wisata', 'Wisata', 'Alam', 'Wisata']",True,0,15.0,100000.0,164000,42.11,False,4.375,1.0,Gedung Sate
+90,4,5,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner', 'Kuliner']",True,0,15.0,100000.0,86000,43.88,True,4.199999999999999,1.0,Alun-Alun Bandung
+91,3,3,1,['Kuliner'],"['Kuliner', 'Kuliner', 'Kuliner']",True,0,60.0,,414000,16.46,True,4.2,1.0,Dago
+92,4,4,3,"['Kuliner', 'Alam', 'Wisata']","['Wisata', 'Kuliner', 'Alam', 'Alam']",True,0,,1000000.0,239000,67.5,True,4.325,1.0,Stasiun Bandung
+93,3,3,3,"['Alam', 'Wisata', 'Kuliner']","['Wisata', 'Kuliner', 'Alam']",True,0,60.0,,154000,28.96,True,4.266666666666667,1.0,Dago
+94,5,5,3,"['Alam', 'Kuliner', 'Wisata']","['Kuliner', 'Wisata', 'Kuliner', 'Alam', 'Alam']",True,0,,600000.0,386000,67.22,True,4.42,1.0,Dago
+95,4,4,2,"['Alam', 'Wisata']","['Wisata', 'Alam', 'Alam', 'Alam']",True,0,25.0,100000.0,125000,79.74,False,4.4,1.0,Stasiun Bandung
+96,4,5,3,"['Wisata', 'Kuliner', 'Alam']","['Wisata', 'Wisata', 'Alam', 'Alam']",False,0,,100000.0,140000,66.42,False,4.375,0.6666666666666666,Stasiun Bandung
+97,3,4,1,['Alam'],"['Alam', 'Alam', 'Alam']",True,0,15.0,400000.0,53000,58.86,True,4.333333333333333,1.0,Gedung Sate
+98,3,3,1,['Wisata'],"['Wisata', 'Wisata', 'Wisata']",True,0,25.0,1000000.0,158000,30.9,True,4.233333333333333,1.0,Pasar Lembang
+99,2,2,2,"['Kuliner', 'Wisata']","['Wisata', 'Kuliner']",True,0,60.0,200000.0,194000,9.52,True,4.15,1.0,Alun-Alun Bandung
